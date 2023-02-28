@@ -9,7 +9,6 @@ app.log*
 
 # Distribution / packaging
 .Python
-questions/
 build/
 develop-eggs/
 dist/
