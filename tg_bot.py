@@ -60,7 +60,9 @@ def handle_solution_attempt(update: Update, context: CallbackContext,
     correct_answer = redis_db.json().get(
         user_data.get('last_asked_question')
     ).get('answer')
-
+    # для построения шаблона регулярного выражения re.compile(...),
+    # воспользовался ссылкой представленной ниже
+    # https://stackoverflow.com/questions/14596884/remove-text-between-and
     regex = re.compile(r'\[.*?\]|\(|\)|\,|\:|\;|\"|\?|\!|\\]')
     correct_answer = regex.sub('', correct_answer)\
         .strip().lower().partition('.')[0]
@@ -127,12 +129,12 @@ def handle_score_button(update: Update, context: CallbackContext,
     return bot_state
 
 
-def cancel(update: Update, context: CallbackContext):
+def handle_cancel(update: Update, context: CallbackContext):
     update.message.reply_text('Пока! Надеюсь вы ещё вернётесь в викторину!')
     return ConversationHandler.END
 
 
-def error(update, error):
+def handle_error(update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
 
@@ -178,7 +180,7 @@ def main():
                                        ),
                         ],
         },
-        fallbacks=[CommandHandler('cancel', cancel),
+        fallbacks=[CommandHandler('cancel', handle_cancel),
                    MessageHandler(Filters.regex('^(Счёт)$'),
                                   partial(handle_score_button,
                                           redis_db=redis_db),
@@ -186,7 +188,7 @@ def main():
                    ]
     )
     dispatcher.add_handler(conv_handler)
-    dispatcher.add_error_handler(error)
+    dispatcher.add_error_handler(handle_error)
     logger.info('Телеграм бот запущен')
     updater.start_polling()
     updater.idle()
