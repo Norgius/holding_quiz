@@ -27,7 +27,7 @@ def handle_new_question_request(event, vk_api, keyboard,
                                 redis_db, questions_amount: int):
     question_number = f'question_{randint(1, questions_amount)}'
     user_data = redis_db.json().get(f'user_vk_{event.user_id}')
-    if user_data is None:
+    if not user_data:
         redis_db.json().set(f'user_vk_{event.user_id}', '$',
                             {'last_asked_question': question_number,
                              'successful': 0, 'unsuccessful': 0}

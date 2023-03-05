@@ -40,7 +40,7 @@ def handle_new_question_request(update: Update, context: CallbackContext,
     context.bot_data['bot_state'] = State.ATTEMPT.value
     question_number = f'question_{randint(1, questions_amount)}'
     user_data = redis_db.json().get(f'user_tg_{chat_id}')
-    if user_data is None:
+    if not user_data:
         redis_db.json().set(f'user_tg_{chat_id}', '$',
                             {'last_asked_question': question_number,
                              'successful': 0, 'unsuccessful': 0}
