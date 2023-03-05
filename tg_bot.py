@@ -129,7 +129,7 @@ def handle_score_button(update: Update, context: CallbackContext,
     return bot_state
 
 
-def handle_cancel(update: Update, context: CallbackContext):
+def handle_exit(update: Update, context: CallbackContext):
     update.message.reply_text('Пока! Надеюсь вы ещё вернётесь в викторину!')
     return ConversationHandler.END
 
@@ -164,7 +164,7 @@ def main():
                                                     redis_db=redis_db,
                                                     questions_amount=questions_amount),
                                             ),
-                             MessageHandler(Filters.regex(r'[^/cancel|Счёт]'),
+                             MessageHandler(Filters.regex(r'[^/exit|Счёт]'),
                                             handle_unknow_message,
                                             ),
                              ],
@@ -174,13 +174,13 @@ def main():
                                                questions_amount=questions_amount),
 
                                        ),
-                        MessageHandler(Filters.regex(r'[^/cancel|Счёт]'),
+                        MessageHandler(Filters.regex(r'[^/exit|Счёт]'),
                                        partial(handle_solution_attempt,
                                                redis_db=redis_db),
                                        ),
                         ],
         },
-        fallbacks=[CommandHandler('cancel', handle_cancel),
+        fallbacks=[CommandHandler('exit', handle_exit),
                    MessageHandler(Filters.regex('^(Счёт)$'),
                                   partial(handle_score_button,
                                           redis_db=redis_db),
