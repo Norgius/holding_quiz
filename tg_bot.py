@@ -45,8 +45,9 @@ def handle_new_question_request(update: Update, context: CallbackContext,
                             {'last_asked_question': question_number,
                              'successful': 0, 'unsuccessful': 0}
                             )
-    user_data['last_asked_question'] = question_number
-    redis_db.json().set(f'user_tg_{chat_id}', '$', user_data)
+    else:
+        user_data['last_asked_question'] = question_number
+        redis_db.json().set(f'user_tg_{chat_id}', '$', user_data)
     question = redis_db.json().get(question_number).get('question')
     update.message.reply_text(text=question, reply_markup=reply_markup)
     return State.ATTEMPT.value

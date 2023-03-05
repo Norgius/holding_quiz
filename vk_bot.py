@@ -32,8 +32,9 @@ def handle_new_question_request(event, vk_api, keyboard,
                             {'last_asked_question': question_number,
                              'successful': 0, 'unsuccessful': 0}
                             )
-    user_data['last_asked_question'] = question_number
-    redis_db.json().set(f'user_vk_{event.user_id}', '$', user_data)
+    else:
+        user_data['last_asked_question'] = question_number
+        redis_db.json().set(f'user_vk_{event.user_id}', '$', user_data)
     question = redis_db.json().get(question_number).get('question')
     vk_api.messages.send(
         user_id=event.user_id,
