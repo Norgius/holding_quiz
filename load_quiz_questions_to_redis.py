@@ -3,14 +3,15 @@ from environs import Env
 from redis import Redis, ConnectionPool
 
 
-def get_questions_with_onswers(redis_db, files_number):
+def load_quiz_questions_to_redis(redis_db, files_number,
+                                 quiz_questions_folder):
     question_number, file_number = 0, 0
     quiz_questions = {}
-    for questions_file in os.listdir('questions'):
+    for questions_file in os.listdir(quiz_questions_folder):
         file_number += 1
         if file_number > files_number:
             return question_number
-        with open(os.path.join('questions', questions_file),
+        with open(os.path.join(quiz_questions_folder, questions_file),
                   'r', encoding='KOI8-R') as file:
             splited_file = file.read().split('\n\n')
             for chunk in splited_file:
@@ -39,7 +40,9 @@ def main():
                           )
     redis_db = Redis(connection_pool=pool)
     files_number = env.int('QUIZ_FILES_NUMBER', 100000)
-    question_number = get_questions_with_onswers(redis_db, files_number)
+    quiz_questions_folder = env.str('QUIZ_QUESTIONS_FOLDER')
+    question_number = load_quiz_questions_to_redis(redis_db, files_number,
+                                                   quiz_questions_folder)
     print('Количество вопросов: ', question_number)
 
 
