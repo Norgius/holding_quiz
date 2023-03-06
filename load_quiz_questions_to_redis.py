@@ -5,30 +5,30 @@ from redis import Redis, ConnectionPool
 
 def load_quiz_questions_to_redis(redis_db, files_number,
                                  quiz_questions_folder):
-    question_number, file_number = 0, 0
+    questions_number, file_number = 0, 0
     quiz_questions = {}
-    for questions_file in os.listdir(quiz_questions_folder):
-        file_number += 1
+    for file_number, questions_file in enumerate(
+            os.listdir(quiz_questions_folder), start=1):
         if file_number > files_number:
-            return question_number
+            return questions_number
         with open(os.path.join(quiz_questions_folder, questions_file),
                   'r', encoding='KOI8-R') as file:
             splited_file = file.read().split('\n\n')
             for chunk in splited_file:
                 if 'Вопрос' in chunk:
-                    question_number += 1
+                    questions_number += 1
                     question = chunk.partition(':\n')[2]
-                    quiz_questions[f'question_{question_number}']\
+                    quiz_questions[f'question_{questions_number}']\
                         = {'question': question}
                 elif 'Ответ' in chunk:
                     answer = chunk.partition(':\n')[2]
                     quiz_questions\
-                        .get(f'question_{question_number}')['answer'] = answer
+                        .get(f'question_{questions_number}')['answer'] = answer
                     redis_db.json().set(
-                        f'question_{question_number}', '$',
+                        f'question_{questions_number}', '$',
                         {'question': question, 'answer': answer}
                     )
-    return question_number
+    return questions_number
 
 
 def main():
